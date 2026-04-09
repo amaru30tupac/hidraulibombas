@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <h3>Detalle del mantenimiento #{{ record.id }}</h3>
+
+  <div class="form-grid">
+    <div class="span-4"><strong>Cliente:</strong> {{ record.client.name }}</div>
+    <div class="span-4"><strong>Equipo:</strong> {{ record.equipment }}</div>
+    <div class="span-4"><strong>Tipo:</strong> {{ record.get_maintenance_type_display }}</div>
+    <div class="span-4"><strong>Fecha:</strong> {{ record.date }}</div>
+    <div class="span-4"><strong>Técnico:</strong> {{ record.technician|default:"-" }}</div>
+    <div class="span-4"><strong>Estado general:</strong> {{ record.general_status|default:"-" }}</div>
+    <div class="span-4"><strong>Torre:</strong> {{ record.tower|default:"-" }}</div>
+    <div class="span-4"><strong>Número:</strong> {{ record.number|default:"-" }}</div>
+    <div class="span-4"><strong>Sede:</strong> {{ record.site|default:"-" }}</div>
+  </div>
+
+  <div class="actions-row">
+    <a class="btn btn-success" href="{% url 'maintenance_update' record.pk %}">Editar</a>
+    <a class="btn btn-danger" href="{% url 'maintenance_delete' record.pk %}">Eliminar</a>
+    <a class="btn btn-secondary" href="{% url 'maintenance_list' %}">Volver</a>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Observaciones</h3>
+  <p>{{ record.observations|default:"Sin observaciones."|linebreaks }}</p>
+
+  <h3>Partes para cambio</h3>
+  <p>{{ record.parts_for_change|default:"Sin partes registradas."|linebreaks }}</p>
+</div>
+
+<div class="card">
+  <h3>Valores de inspección</h3>
+
+  {% for section, items in grouped_values.items %}
+    <h4>{{ section }}</h4>
+    <div class="table-wrap" style="margin-bottom:18px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Parámetro</th>
+            <th>Posición</th>
+            <th>Valor</th>
+            <th>Valor numérico</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+            <tr>
+              <td>{{ item.parameter }}</td>
+              <td>{{ item.position }}</td>
+              <td>{{ item.value|default:"-" }}</td>
+              <td>{{ item.numeric_value|default:"-" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% empty %}
+    <p>No hay valores técnicos registrados.</p>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <h3>Fotografías</h3>
+
+  {% if record.photos.all %}
+    <div class="photo-grid">
+      {% for photo in record.photos.all %}
+        <div>
+          <img src="{{ photo.image.url }}" alt="Foto mantenimiento">
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No hay fotografías adjuntas.</p>
+  {% endif %}
+</div>
+{% endblock %}

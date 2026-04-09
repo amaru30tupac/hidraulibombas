@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="stats-grid">
+  <div class="stat-box">
+    <div class="stat-label">Clientes registrados</div>
+    <div class="stat-value">{{ clients_count }}</div>
+  </div>
+
+  <div class="stat-box">
+    <div class="stat-label">Mantenimientos registrados</div>
+    <div class="stat-value">{{ records_count }}</div>
+  </div>
+
+  <div class="stat-box">
+    <div class="stat-label">Usuario actual</div>
+    <div class="stat-value" style="font-size:18px;">{{ user.get_full_name|default:user.username }}</div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Últimos mantenimientos</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Equipo</th>
+          <th>Tipo</th>
+          <th>Fecha</th>
+          <th>Técnico</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in recent_records %}
+          <tr>
+            <td><a href="{% url 'maintenance_detail' item.pk %}">#{{ item.pk }}</a></td>
+            <td>{{ item.client.name }}</td>
+            <td>{{ item.equipment }}</td>
+            <td>{{ item.get_maintenance_type_display }}</td>
+            <td>{{ item.date }}</td>
+            <td>{{ item.technician|default:"-" }}</td>
+            <td>{{ item.general_status|default:"-" }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7">No hay registros todavía.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

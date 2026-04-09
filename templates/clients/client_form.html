@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <h3>{{ form_title }}</h3>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-grid">
+      <div class="form-group span-6">
+        <label for="{{ form.name.id_for_label }}">Nombre</label>
+        {{ form.name }}
+      </div>
+
+      <div class="form-group span-6">
+        <label for="{{ form.email.id_for_label }}">Correo</label>
+        {{ form.email }}
+      </div>
+
+      <div class="form-group span-4">
+        <label for="{{ form.phone.id_for_label }}">Teléfono</label>
+        {{ form.phone }}
+      </div>
+
+      <div class="form-group span-4">
+        <label for="{{ form.contact_name.id_for_label }}">Contacto</label>
+        {{ form.contact_name }}
+      </div>
+
+      <div class="form-group span-4">
+        <label for="{{ form.is_active.id_for_label }}">Activo</label>
+        {{ form.is_active }}
+      </div>
+
+      <div class="form-group span-12">
+        <label for="{{ form.address.id_for_label }}">Dirección</label>
+        {{ form.address }}
+      </div>
+
+      <div class="form-group span-12">
+        <label for="{{ form.notes.id_for_label }}">Notas</label>
+        {{ form.notes }}
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button class="btn btn-success" type="submit">Guardar</button>
+      <a class="btn btn-secondary" href="{% url 'client_list' %}">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

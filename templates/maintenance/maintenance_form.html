@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="card">
+    <h3>Registro de mantenimiento</h3>
+
+    <div class="form-grid">
+      <div class="form-group span-6">
+        <label for="{{ form.client.id_for_label }}">Cliente</label>
+        {{ form.client }}
+      </div>
+
+      <div class="form-group span-3">
+        <label for="{{ form.tower.id_for_label }}">Torre</label>
+        {{ form.tower }}
+      </div>
+
+      <div class="form-group span-3">
+        <label for="{{ form.number.id_for_label }}">Número</label>
+        {{ form.number }}
+      </div>
+
+      <div class="form-group span-6">
+        <label for="{{ form.email.id_for_label }}">Correo</label>
+        {{ form.email }}
+      </div>
+
+      <div class="form-group span-6">
+        <label for="{{ form.maintenance_type.id_for_label }}">Tipo de mantenimiento</label>
+        {{ form.maintenance_type }}
+      </div>
+
+      <div class="form-group span-6">
+        <label for="{{ form.equipment.id_for_label }}">Equipo</label>
+        {{ form.equipment }}
+      </div>
+
+      <div class="form-group span-3">
+        <label for="{{ form.entry_time.id_for_label }}">Hora entrada</label>
+        {{ form.entry_time }}
+      </div>
+
+      <div class="form-group span-3">
+        <label for="{{ form.exit_time.id_for_label }}">Hora salida</label>
+        {{ form.exit_time }}
+      </div>
+
+      <div class="form-group span-3">
+        <label for="{{ form.date.id_for_label }}">Fecha</label>
+        {{ form.date }}
+      </div>
+
+      <div class="form-group span-3">
+        <label for="{{ form.technician.id_for_label }}">Técnico</label>
+        {{ form.technician }}
+      </div>
+
+      <div class="form-group span-6">
+        <label for="{{ form.site.id_for_label }}">Sede</label>
+        {{ form.site }}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Resumen rápido</h3>
+    <p class="small-muted">Completa el formulario y selecciona los estados técnicos según corresponda.</p>
+  </div>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:18px; margin-bottom:18px;">
+    <div class="section-card">
+      <div class="section-title">Tablero de control</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Parámetro</th>
+              <th>B1</th>
+              <th>B2</th>
+              <th>B3</th>
+              <th>B4</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in tablero_rows %}
+              <tr>
+                <td>{{ row.label }}</td>
+                {% for cell in row.cells %}
+                  <td>
+                    {% if row.type == "number" %}
+                      <input class="form-input" type="number" step="any" name="{{ cell.name }}" value="{{ cell.numeric_value }}">
+                    {% else %}
+                      <select class="form-select" name="{{ cell.name }}">
+                        {% for value, label in state_choices %}
+                          <option value="{{ value }}" {% if cell.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                    {% endif %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">Hidrosistema</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Descripción</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in hidrosistema_rows %}
+              <tr>
+                <td>{{ row.label }}</td>
+                <td>
+                  <select class="form-select" name="{{ row.name }}">
+                    {% for value, label in state_choices %}
+                      <option value="{{ value }}" {% if row.value == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">Sistema eyector</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Parámetro</th>
+            <th>B1</th>
+            <th>B2</th>
+            <th>B3</th>
+            <th>B4</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in eyector_rows %}
+            <tr>
+              <td>{{ row.label }}</td>
+              {% for cell in row.cells %}
+                <td>
+                  {% if row.type == "number" %}
+                    <input class="form-input" type="number" step="any" name="{{ cell.name }}" value="{{ cell.numeric_value }}">
+                  {% else %}
+                    <select class="form-select" name="{{ cell.name }}">
+                      {% for value, label in state_choices %}
+                        <option value="{{ value }}" {% if cell.value == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  {% endif %}
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:18px; margin-bottom:18px;">
+    <div class="section-card">
+      <div class="section-title">Motor</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Parámetro</th>
+              <th>M1</th>
+              <th>M2</th>
+              <th>M3</th>
+              <th>M4</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in motor_rows %}
+              <tr>
+                <td>{{ row.label }}</td>
+                {% for cell in row.cells %}
+                  <td>
+                    <select class="form-select" name="{{ cell.name }}">
+                      {% for value, label in state_choices %}
+                        <option value="{{ value }}" {% if cell.value == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">Bombas</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Parámetro</th>
+              <th>B1</th>
+              <th>B2</th>
+              <th>B3</th>
+              <th>B4</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in bombas_rows %}
+              <tr>
+                <td>{{ row.label }}</td>
+                {% for cell in row.cells %}
+                  <td>
+                    <select class="form-select" name="{{ cell.name }}">
+                      {% for value, label in state_choices %}
+                        <option value="{{ value }}" {% if cell.value == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="form-grid">
+      <div class="form-group span-6">
+        <label for="{{ form.parts_for_change.id_for_label }}">Partes para cambio</label>
+        {{ form.parts_for_change }}
+      </div>
+
+      <div class="form-group span-6">
+        <label for="{{ form.observations.id_for_label }}">Observaciones</label>
+        {{ form.observations }}
+      </div>
+
+      <div class="form-group span-12">
+        <label for="id_photos">Fotografías del mantenimiento</label>
+        <input class="form-input" type="file" id="id_photos" name="photos" multiple accept="image/*">
+      </div>
+    </div>
+
+    {% if record and record.photos.all %}
+      <div style="margin-top:18px;">
+        <h4>Fotos actuales</h4>
+        <div class="photo-grid">
+          {% for photo in record.photos.all %}
+            <div>
+              <img src="{{ photo.image.url }}" alt="Foto mantenimiento">
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="actions-row">
+    <button class="btn btn-success" type="submit">Guardar registro</button>
+    <a class="btn btn-secondary" href="{% url 'maintenance_list' %}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

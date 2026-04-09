@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <form method="get" class="form-grid">
+    <div class="form-group span-6">
+      <label for="q">Buscar mantenimiento</label>
+      <input class="form-input" type="text" name="q" id="q" value="{{ query }}" placeholder="Título del mantenimiento">
+    </div>
+
+    <div class="form-group span-6" style="justify-content:flex-end;">
+      <label>&nbsp;</label>
+      <div>
+        <button class="btn btn-primary" type="submit">Buscar</button>
+        <a class="btn btn-success" href="{% url 'maintenance_create' %}">Nuevo mantenimiento</a>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Equipo</th>
+          <th>Tipo</th>
+          <th>Fecha</th>
+          <th>Técnico</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in records %}
+          <tr>
+            <td>#{{ record.id }}</td>
+            <td>{{ record.client.name }}</td>
+            <td>{{ record.equipment }}</td>
+            <td>{{ record.get_maintenance_type_display }}</td>
+            <td>{{ record.date }}</td>
+            <td>{{ record.technician|default:"-" }}</td>
+            <td>{{ record.general_status|default:"-" }}</td>
+            <td>
+              <a class="btn btn-primary" href="{% url 'maintenance_detail' record.pk %}">Ver</a>
+              <a class="btn btn-success" href="{% url 'maintenance_update' record.pk %}">Editar</a>
+              <a class="btn btn-danger" href="{% url 'maintenance_delete' record.pk %}">Eliminar</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="8">No hay mantenimientos registrados.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
