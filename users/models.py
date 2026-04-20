@@ -13,6 +13,12 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="tecnico")
     phone = models.CharField(max_length=30, blank=True, null=True)
     is_active_technician = models.BooleanField(default=True)
+    photo = models.ImageField(
+        upload_to="users/photos/",
+        blank=True,
+        null=True,
+        verbose_name="Foto del técnico"
+    )
 
     def __str__(self) -> str:
         return f"{self.get_full_name() or self.username} ({self.role})"

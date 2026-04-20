@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="space-y-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-soft">
+      <p class="text-sm text-slate-500">Mantenimientos este mes</p>
+      <p class="mt-3 text-4xl font-bold text-slate-900">{{ month_records }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-soft">
+      <p class="text-sm text-slate-500">Total mantenimientos</p>
+      <p class="mt-3 text-4xl font-bold text-slate-900">{{ total_records }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-soft">
+      <p class="text-sm text-slate-500">Correctivos vs Preventivos</p>
+      <p class="mt-3 text-xl font-bold text-slate-900">{{ correctivos }} / {{ preventivos }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-soft">
+      <p class="text-sm text-slate-500">Clientes registrados</p>
+      <p class="mt-3 text-4xl font-bold text-slate-900">{{ total_clients }}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-soft">
+      <p class="text-sm text-slate-500">Cliente con más incidencias</p>
+      <p class="mt-3 text-xl font-bold text-slate-900">{{ most_incidence_client }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-soft">
+      <p class="text-sm text-slate-500">Equipo con más fallas / recurrencia</p>
+      <p class="mt-3 text-xl font-bold text-slate-900">{{ most_failing_equipment }}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6">
+      <h3 class="font-bold mb-4 text-slate-900">Técnicos con más actividad</h3>
+      <canvas id="chartTechnicians"></canvas>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6">
+      <h3 class="font-bold mb-4 text-slate-900">Correctivos vs preventivos</h3>
+      <canvas id="chartTypes"></canvas>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6">
+      <h3 class="font-bold mb-4 text-slate-900">Clientes con más incidencias</h3>
+      <canvas id="chartClients"></canvas>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6">
+      <h3 class="font-bold mb-4 text-slate-900">Equipos con más fallas</h3>
+      <canvas id="chartEquipment"></canvas>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6 xl:col-span-2">
+      <h3 class="font-bold mb-4 text-slate-900">Tendencia mensual</h3>
+      <canvas id="chartMonthly"></canvas>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6 xl:col-span-2">
+      <h3 class="font-bold mb-4 text-slate-900">Tendencia semanal</h3>
+      <canvas id="chartWeekly"></canvas>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden">
+    <div class="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
+      <div>
+        <h3 class="text-xl font-bold text-slate-900">Últimos mantenimientos</h3>
+        <p class="text-sm text-slate-500 mt-1">Resumen operativo reciente.</p>
+      </div>
+      <a href="{% url 'maintenance_create' %}" class="inline-flex items-center rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 transition">
+        Nuevo mantenimiento
+      </a>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">ID</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">Cliente</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">Equipo</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">Tipo</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">Fecha</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">Técnico</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">Proceso</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+          {% for item in recent_records %}
+            <tr class="hover:bg-slate-50">
+              <td class="px-4 py-3">
+                <a href="{% url 'maintenance_detail' item.pk %}" class="text-blue-600 font-semibold hover:underline">#{{ item.pk }}</a>
+              </td>
+              <td class="px-4 py-3">{{ item.client.name }}</td>
+              <td class="px-4 py-3">{{ item.equipment }}</td>
+              <td class="px-4 py-3">{{ item.get_maintenance_type_display }}</td>
+              <td class="px-4 py-3">{{ item.date }}</td>
+              <td class="px-4 py-3">{{ item.technician|default:"-" }}</td>
+              <td class="px-4 py-3">{{ item.get_process_status_display }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="px-4 py-8 text-center text-slate-500">No hay registros todavía.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const technicianLabels = {{ technician_labels|safe }};
+  const technicianValues = {{ technician_values|safe }};
+  const clientLabels = {{ client_labels|safe }};
+  const clientValues = {{ client_values|safe }};
+  const equipmentLabels = {{ equipment_labels|safe }};
+  const equipmentValues = {{ equipment_values|safe }};
+  const typeLabels = {{ type_labels|safe }};
+  const typeValues = {{ type_values|safe }};
+  const monthlyLabels = {{ monthly_labels|safe }};
+  const monthlyValues = {{ monthly_values|safe }};
+  const weeklyLabels = {{ weekly_labels|safe }};
+  const weeklyValues = {{ weekly_values|safe }};
+
+  new Chart(document.getElementById('chartTechnicians'), {
+    type: 'bar',
+    data: {
+      labels: technicianLabels,
+      datasets: [{ label: 'Mantenimientos', data: technicianValues }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+  });
+
+  new Chart(document.getElementById('chartTypes'), {
+    type: 'doughnut',
+    data: {
+      labels: typeLabels,
+      datasets: [{ data: typeValues }]
+    },
+    options: { responsive: true }
+  });
+
+  new Chart(document.getElementById('chartClients'), {
+    type: 'bar',
+    data: {
+      labels: clientLabels,
+      datasets: [{ label: 'Incidencias', data: clientValues }]
+    },
+    options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
+  });
+
+  new Chart(document.getElementById('chartEquipment'), {
+    type: 'bar',
+    data: {
+      labels: equipmentLabels,
+      datasets: [{ label: 'Fallas / recurrencia', data: equipmentValues }]
+    },
+    options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
+  });
+
+  new Chart(document.getElementById('chartMonthly'), {
+    type: 'line',
+    data: {
+      labels: monthlyLabels,
+      datasets: [{ label: 'Mensual', data: monthlyValues, tension: 0.3, fill: false }]
+    },
+    options: { responsive: true }
+  });
+
+  new Chart(document.getElementById('chartWeekly'), {
+    type: 'line',
+    data: {
+      labels: weeklyLabels,
+      datasets: [{ label: 'Semanal', data: weeklyValues, tension: 0.3, fill: false }]
+    },
+    options: { responsive: true }
+  });
+</script>
+{% endblock %}

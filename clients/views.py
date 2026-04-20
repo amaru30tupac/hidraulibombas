@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .forms import ClientForm
 from .models import Client
 
+from django.http import JsonResponse
 
 @login_required
 def client_list_view(request):
@@ -74,3 +75,17 @@ def client_delete_view(request, pk):
         "page_title": "Eliminar cliente",
         "client": client,
     })
+
+
+
+def client_detail_api(request, client_id):
+    client = get_object_or_404(Client, pk=client_id)
+
+    data = {
+        "email": client.email or "",
+        "site": client.address or "",
+        "address": client.address or "",
+        "contact_name": client.contact_name or "",
+        "phone": client.phone or "",
+    }
+    return JsonResponse(data)

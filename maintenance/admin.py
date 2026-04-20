@@ -23,9 +23,11 @@ class MaintenanceRecordAdmin(admin.ModelAdmin):
         "date",
         "technician",
         "general_status",
+        "process_status",
+        "is_closed",
     )
-    list_filter = ("maintenance_type", "date", "general_status")
-    search_fields = ("title", "client__name", "equipment", "site")
+    list_filter = ("maintenance_type", "date", "general_status", "process_status", "is_closed")
+    search_fields = ("title", "client__name", "equipment", "site", "tower", "number")
     inlines = [MaintenancePhotoInline, InspectionValueInline]
 
 

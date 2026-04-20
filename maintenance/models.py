@@ -11,14 +11,11 @@ class MaintenanceRecord(models.Model):
         ("emergencia", "Emergencia"),
     ]
 
-    STATUS_CHOICES = [
-        ("A", "Ajustadas"),
-        ("C", "Cambio"),
-        ("F", "Falla"),
-        ("P", "Pendiente"),
-        ("D", "Diagnóstico"),
-        ("V", "Verificado / OK / Operando"),
-        ("NA", "No aplica"),
+    PROCESS_STATUS_CHOICES = [
+        ("borrador", "Borrador"),
+        ("en_proceso", "En proceso"),
+        ("pendiente_repuesto", "Pendiente repuesto"),
+        ("cerrado", "Cerrado"),
     ]
 
     title = models.CharField("Título", max_length=255)
@@ -42,6 +39,30 @@ class MaintenanceRecord(models.Model):
     parts_for_change = models.TextField("Partes para cambio", blank=True, null=True)
     observations = models.TextField("Observaciones", blank=True, null=True)
     general_status = models.CharField("Estado general", max_length=50, blank=True, null=True)
+
+    process_status = models.CharField(
+        "Estado del proceso",
+        max_length=30,
+        choices=PROCESS_STATUS_CHOICES,
+        default="borrador",
+    )
+    is_closed = models.BooleanField("Cerrado", default=False)
+
+    technician_signature = models.ImageField(
+        "Firma técnico",
+        upload_to="maintenance/signatures/technician/",
+        blank=True,
+        null=True,
+    )
+    client_signature = models.ImageField(
+        "Firma cliente",
+        upload_to="maintenance/signatures/client/",
+        blank=True,
+        null=True,
+    )
+    signed_by_technician_at = models.DateTimeField("Firma técnico fecha", blank=True, null=True)
+    signed_by_client_at = models.DateTimeField("Firma cliente fecha", blank=True, null=True)
+
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,

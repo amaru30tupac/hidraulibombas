@@ -1,61 +1,190 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card">
-  <form method="get" class="form-grid">
-    <div class="form-group span-6">
-      <label for="q">Buscar mantenimiento</label>
-      <input class="form-input" type="text" name="q" id="q" value="{{ query }}" placeholder="Título del mantenimiento">
+<div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6 mb-6">
+  <form method="get" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4">
+    <div class="xl:col-span-2">
+      <label for="q" class="block text-sm font-semibold text-slate-700 mb-2">Buscar</label>
+      <input
+        class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        type="text"
+        name="q"
+        id="q"
+        value="{{ query }}"
+        placeholder="Cliente, título o equipo"
+      >
     </div>
 
-    <div class="form-group span-6" style="justify-content:flex-end;">
-      <label>&nbsp;</label>
-      <div>
-        <button class="btn btn-primary" type="submit">Buscar</button>
-        <a class="btn btn-success" href="{% url 'maintenance_create' %}">Nuevo mantenimiento</a>
-      </div>
+    <div>
+      <label for="client" class="block text-sm font-semibold text-slate-700 mb-2">Cliente</label>
+      <select name="client" id="client" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+        <option value="">Todos</option>
+        {% for client in clients %}
+          <option value="{{ client.id }}" {% if selected_client == client.id|stringformat:"s" %}selected{% endif %}>{{ client.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label for="technician" class="block text-sm font-semibold text-slate-700 mb-2">Técnico</label>
+      <select name="technician" id="technician" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+        <option value="">Todos</option>
+        {% for technician in technicians %}
+          <option value="{{ technician.id }}" {% if selected_technician == technician.id|stringformat:"s" %}selected{% endif %}>
+            {{ technician.get_full_name|default:technician.username }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label for="maintenance_type" class="block text-sm font-semibold text-slate-700 mb-2">Tipo</label>
+      <select name="maintenance_type" id="maintenance_type" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+        <option value="">Todos</option>
+        <option value="preventivo" {% if selected_type == "preventivo" %}selected{% endif %}>Preventivo</option>
+        <option value="correctivo" {% if selected_type == "correctivo" %}selected{% endif %}>Correctivo</option>
+        <option value="asistencia_tecnica" {% if selected_type == "asistencia_tecnica" %}selected{% endif %}>Asistencia técnica</option>
+        <option value="emergencia" {% if selected_type == "emergencia" %}selected{% endif %}>Emergencia</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="general_status" class="block text-sm font-semibold text-slate-700 mb-2">Estado</label>
+      <select name="general_status" id="general_status" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+        <option value="">Todos</option>
+        <option value="Con fallas" {% if selected_status == "Con fallas" %}selected{% endif %}>Con fallas</option>
+        <option value="Pendiente" {% if selected_status == "Pendiente" %}selected{% endif %}>Pendiente</option>
+        <option value="En diagnóstico" {% if selected_status == "En diagnóstico" %}selected{% endif %}>En diagnóstico</option>
+        <option value="Revisado" {% if selected_status == "Revisado" %}selected{% endif %}>Revisado</option>
+        <option value="Sin clasificar" {% if selected_status == "Sin clasificar" %}selected{% endif %}>Sin clasificar</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="date_from" class="block text-sm font-semibold text-slate-700 mb-2">Fecha desde</label>
+      <input type="date" name="date_from" id="date_from" value="{{ date_from }}"
+             class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+    </div>
+
+    <div>
+      <label for="date_to" class="block text-sm font-semibold text-slate-700 mb-2">Fecha hasta</label>
+      <input type="date" name="date_to" id="date_to" value="{{ date_to }}"
+             class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+    </div>
+
+    <div class="xl:col-span-6 flex flex-wrap gap-3 pt-2">
+      <button class="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-3 transition" type="submit">
+        Filtrar
+      </button>
+      <a class="rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-semibold px-5 py-3 transition" href="{% url 'maintenance_list' %}">
+        Limpiar
+      </a>
+      <a class="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3 transition"
+         href="{% url 'maintenance_export_list_pdf' %}?q={{ query }}&client={{ selected_client }}&technician={{ selected_technician }}&maintenance_type={{ selected_type }}&general_status={{ selected_status }}&date_from={{ date_from }}&date_to={{ date_to }}">
+        Exportar PDF
+      </a>
+      <a class="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-3 transition" href="{% url 'maintenance_create' %}">
+        Nuevo
+      </a>
     </div>
   </form>
 </div>
 
-<div class="card">
-  <div class="table-wrap">
-    <table>
-      <thead>
+<div class="bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden">
+  <div class="px-6 py-5 border-b border-slate-200">
+    <h3 class="text-xl font-bold">Mantenimientos</h3>
+    <p class="text-sm text-slate-500 mt-1">Listado filtrable y exportable.</p>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50">
         <tr>
-          <th>ID</th>
-          <th>Cliente</th>
-          <th>Equipo</th>
-          <th>Tipo</th>
-          <th>Fecha</th>
-          <th>Técnico</th>
-          <th>Estado</th>
-          <th>Acciones</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">ID</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Cliente</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Equipo</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Tipo</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Fecha</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Técnico</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Estado</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Acciones</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="divide-y divide-slate-200">
         {% for record in records %}
-          <tr>
-            <td>#{{ record.id }}</td>
-            <td>{{ record.client.name }}</td>
-            <td>{{ record.equipment }}</td>
-            <td>{{ record.get_maintenance_type_display }}</td>
-            <td>{{ record.date }}</td>
-            <td>{{ record.technician|default:"-" }}</td>
-            <td>{{ record.general_status|default:"-" }}</td>
-            <td>
-              <a class="btn btn-primary" href="{% url 'maintenance_detail' record.pk %}">Ver</a>
-              <a class="btn btn-success" href="{% url 'maintenance_update' record.pk %}">Editar</a>
-              <a class="btn btn-danger" href="{% url 'maintenance_delete' record.pk %}">Eliminar</a>
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3 font-semibold text-blue-600">#{{ record.id }}</td>
+            <td class="px-4 py-3">{{ record.client.name }}</td>
+            <td class="px-4 py-3">{{ record.equipment }}</td>
+            <td class="px-4 py-3">{{ record.get_maintenance_type_display }}</td>
+            <td class="px-4 py-3">{{ record.date }}</td>
+            <td class="px-4 py-3">{{ record.technician|default:"-" }}</td>
+            <td class="px-4 py-3">
+              <span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                {{ record.general_status|default:"-" }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex flex-wrap gap-2">
+                <a class="rounded-lg bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 text-xs font-semibold transition" href="{% url 'maintenance_detail' record.pk %}">
+                  Ver
+                </a>
+                <a class="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 text-xs font-semibold transition" href="{% url 'maintenance_update' record.pk %}">
+                  Editar
+                </a>
+                <a class="rounded-lg bg-red-600 hover:bg-red-700 text-white px-3 py-2 text-xs font-semibold transition" href="{% url 'maintenance_delete' record.pk %}">
+                  Eliminar
+                </a>
+                <a class="rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 text-xs font-semibold transition" href="{% url 'maintenance_export_detail_pdf' record.pk %}">
+                  PDF
+                </a>
+              </div>
             </td>
           </tr>
         {% empty %}
           <tr>
-            <td colspan="8">No hay mantenimientos registrados.</td>
+            <td colspan="8" class="px-4 py-8 text-center text-slate-500">No hay mantenimientos registrados.</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+
+  {% if page_obj %}
+    <div class="px-6 py-4 border-t border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <p class="text-sm text-slate-500">
+        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+      </p>
+
+      <div class="flex flex-wrap gap-2">
+        {% if page_obj.has_previous %}
+          <a class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
+             href="?page=1&q={{ query }}&client={{ selected_client }}&technician={{ selected_technician }}&maintenance_type={{ selected_type }}&general_status={{ selected_status }}&date_from={{ date_from }}&date_to={{ date_to }}">
+            Primera
+          </a>
+          <a class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
+             href="?page={{ page_obj.previous_page_number }}&q={{ query }}&client={{ selected_client }}&technician={{ selected_technician }}&maintenance_type={{ selected_type }}&general_status={{ selected_status }}&date_from={{ date_from }}&date_to={{ date_to }}">
+            Anterior
+          </a>
+        {% endif %}
+        <a class="rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-3 transition"
+   href="{% url 'maintenance_export_excel' %}?q={{ query }}&client={{ selected_client }}&technician={{ selected_technician }}&maintenance_type={{ selected_type }}&general_status={{ selected_status }}&date_from={{ date_from }}&date_to={{ date_to }}">
+   Exportar Excel
+</a>
+
+        {% if page_obj.has_next %}
+          <a class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
+             href="?page={{ page_obj.next_page_number }}&q={{ query }}&client={{ selected_client }}&technician={{ selected_technician }}&maintenance_type={{ selected_type }}&general_status={{ selected_status }}&date_from={{ date_from }}&date_to={{ date_to }}">
+            Siguiente
+          </a>
+          <a class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
+             href="?page={{ page_obj.paginator.num_pages }}&q={{ query }}&client={{ selected_client }}&technician={{ selected_technician }}&maintenance_type={{ selected_type }}&general_status={{ selected_status }}&date_from={{ date_from }}&date_to={{ date_to }}">
+            Última
+          </a>
+
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

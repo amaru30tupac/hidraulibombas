@@ -1,53 +1,68 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="stats-grid">
-  <div class="stat-box">
-    <div class="stat-label">Clientes registrados</div>
-    <div class="stat-value">{{ clients_count }}</div>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6">
+    <p class="text-sm font-medium text-slate-500">Clientes registrados</p>
+    <p class="mt-3 text-4xl font-bold text-slate-900">{{ clients_count }}</p>
   </div>
 
-  <div class="stat-box">
-    <div class="stat-label">Mantenimientos registrados</div>
-    <div class="stat-value">{{ records_count }}</div>
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6">
+    <p class="text-sm font-medium text-slate-500">Mantenimientos registrados</p>
+    <p class="mt-3 text-4xl font-bold text-slate-900">{{ records_count }}</p>
   </div>
 
-  <div class="stat-box">
-    <div class="stat-label">Usuario actual</div>
-    <div class="stat-value" style="font-size:18px;">{{ user.get_full_name|default:user.username }}</div>
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6">
+    <p class="text-sm font-medium text-slate-500">Usuario actual</p>
+    <p class="mt-3 text-xl font-bold text-slate-900">{{ user.get_full_name|default:user.username }}</p>
+    <p class="text-sm text-slate-500 mt-1">{{ user.username }}</p>
   </div>
 </div>
 
-<div class="card">
-  <h3>Últimos mantenimientos</h3>
+<div class="bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden">
+  <div class="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
+    <div>
+      <h3 class="text-xl font-bold text-slate-900">Últimos mantenimientos</h3>
+      <p class="text-sm text-slate-500 mt-1">Resumen operativo reciente.</p>
+    </div>
+    <a href="{% url 'maintenance_create' %}" class="inline-flex items-center rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 transition">
+      Nuevo mantenimiento
+    </a>
+  </div>
 
-  <div class="table-wrap">
-    <table>
-      <thead>
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50">
         <tr>
-          <th>ID</th>
-          <th>Cliente</th>
-          <th>Equipo</th>
-          <th>Tipo</th>
-          <th>Fecha</th>
-          <th>Técnico</th>
-          <th>Estado</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">ID</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Cliente</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Equipo</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Tipo</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Fecha</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Técnico</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Estado</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="divide-y divide-slate-200">
         {% for item in recent_records %}
-          <tr>
-            <td><a href="{% url 'maintenance_detail' item.pk %}">#{{ item.pk }}</a></td>
-            <td>{{ item.client.name }}</td>
-            <td>{{ item.equipment }}</td>
-            <td>{{ item.get_maintenance_type_display }}</td>
-            <td>{{ item.date }}</td>
-            <td>{{ item.technician|default:"-" }}</td>
-            <td>{{ item.general_status|default:"-" }}</td>
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3">
+              <a href="{% url 'maintenance_detail' item.pk %}" class="text-blue-600 font-semibold hover:underline">#{{ item.pk }}</a>
+            </td>
+            <td class="px-4 py-3">{{ item.client.name }}</td>
+            <td class="px-4 py-3">{{ item.equipment }}</td>
+            <td class="px-4 py-3">{{ item.get_maintenance_type_display }}</td>
+            <td class="px-4 py-3">{{ item.date }}</td>
+            <td class="px-4 py-3">{{ item.technician|default:"-" }}</td>
+            <td class="px-4 py-3">
+              <span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                {{ item.general_status|default:"-" }}
+              </span>
+            </td>
           </tr>
         {% empty %}
           <tr>
-            <td colspan="7">No hay registros todavía.</td>
+            <td colspan="7" class="px-4 py-8 text-center text-slate-500">No hay registros todavía.</td>
           </tr>
         {% endfor %}
       </tbody>
@@ -55,3 +70,4 @@
   </div>
 </div>
 {% endblock %}
+

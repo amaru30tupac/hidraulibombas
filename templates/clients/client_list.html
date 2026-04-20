@@ -1,54 +1,79 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card">
-  <form method="get" class="form-grid">
-    <div class="form-group span-6">
-      <label for="q">Buscar cliente</label>
-      <input class="form-input" type="text" name="q" id="q" value="{{ query }}" placeholder="Nombre del cliente">
+<div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6 mb-6">
+  <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="md:col-span-2">
+      <label for="q" class="block text-sm font-semibold text-slate-700 mb-2">Buscar cliente</label>
+      <input
+        class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        type="text"
+        name="q"
+        id="q"
+        value="{{ query }}"
+        placeholder="Nombre del cliente"
+      >
     </div>
 
-    <div class="form-group span-6" style="justify-content:flex-end;">
-      <label>&nbsp;</label>
-      <div>
-        <button class="btn btn-primary" type="submit">Buscar</button>
-        <a class="btn btn-success" href="{% url 'client_create' %}">Nuevo cliente</a>
-      </div>
+    <div class="flex items-end gap-3">
+      <button class="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-3 transition" type="submit">
+        Buscar
+      </button>
+      <a class="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3 transition" href="{% url 'client_create' %}">
+        Nuevo
+      </a>
     </div>
   </form>
 </div>
 
-<div class="card">
-  <div class="table-wrap">
-    <table>
-      <thead>
+<div class="bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden">
+  <div class="px-6 py-5 border-b border-slate-200">
+    <h3 class="text-xl font-bold">Clientes</h3>
+    <p class="text-sm text-slate-500 mt-1">Gestión de cartera de clientes.</p>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50">
         <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Correo</th>
-          <th>Teléfono</th>
-          <th>Contacto</th>
-          <th>Activo</th>
-          <th>Acciones</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">ID</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Nombre</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Correo</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Teléfono</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Contacto</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Activo</th>
+          <th class="px-4 py-3 text-left font-semibold text-slate-700">Acciones</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="divide-y divide-slate-200">
         {% for client in clients %}
-          <tr>
-            <td>{{ client.id }}</td>
-            <td>{{ client.name }}</td>
-            <td>{{ client.email|default:"-" }}</td>
-            <td>{{ client.phone|default:"-" }}</td>
-            <td>{{ client.contact_name|default:"-" }}</td>
-            <td>{% if client.is_active %}Sí{% else %}No{% endif %}</td>
-            <td>
-              <a class="btn btn-primary" href="{% url 'client_update' client.pk %}">Editar</a>
-              <a class="btn btn-danger" href="{% url 'client_delete' client.pk %}">Eliminar</a>
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3">{{ client.id }}</td>
+            <td class="px-4 py-3 font-medium">{{ client.name }}</td>
+            <td class="px-4 py-3">{{ client.email|default:"-" }}</td>
+            <td class="px-4 py-3">{{ client.phone|default:"-" }}</td>
+            <td class="px-4 py-3">{{ client.contact_name|default:"-" }}</td>
+            <td class="px-4 py-3">
+              {% if client.is_active %}
+                <span class="inline-flex rounded-full bg-emerald-100 text-emerald-700 px-3 py-1 text-xs font-semibold">Sí</span>
+              {% else %}
+                <span class="inline-flex rounded-full bg-red-100 text-red-700 px-3 py-1 text-xs font-semibold">No</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex flex-wrap gap-2">
+                <a class="rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 text-xs font-semibold transition" href="{% url 'client_update' client.pk %}">
+                  Editar
+                </a>
+                <a class="rounded-lg bg-red-600 hover:bg-red-700 text-white px-3 py-2 text-xs font-semibold transition" href="{% url 'client_delete' client.pk %}">
+                  Eliminar
+                </a>
+              </div>
             </td>
           </tr>
         {% empty %}
           <tr>
-            <td colspan="7">No hay clientes registrados.</td>
+            <td colspan="7" class="px-4 py-8 text-center text-slate-500">No hay clientes registrados.</td>
           </tr>
         {% endfor %}
       </tbody>

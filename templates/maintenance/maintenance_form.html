@@ -1,99 +1,125 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" id="maintenanceForm" class="space-y-6">
   {% csrf_token %}
 
-  <div class="card">
-    <h3>Registro de mantenimiento</h3>
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6 md:p-8">
+    <div class="mb-6">
+      <h3 class="text-2xl font-bold text-slate-900">Registro de mantenimiento</h3>
+      <p class="text-sm text-slate-500 mt-1">Completa la información general de la visita técnica.</p>
+    </div>
 
-    <div class="form-grid">
-      <div class="form-group span-6">
-        <label for="{{ form.client.id_for_label }}">Cliente</label>
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+      <div class="md:col-span-6">
+        <label for="{{ form.client.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">Cliente</label>
         {{ form.client }}
       </div>
 
-      <div class="form-group span-3">
-        <label for="{{ form.tower.id_for_label }}">Torre</label>
+      <div class="md:col-span-3">
+        <label for="{{ form.tower.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">Torre</label>
         {{ form.tower }}
       </div>
 
-      <div class="form-group span-3">
-        <label for="{{ form.number.id_for_label }}">Número</label>
+      <div class="md:col-span-3">
+        <label for="{{ form.number.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">Número</label>
         {{ form.number }}
       </div>
 
-      <div class="form-group span-6">
-        <label for="{{ form.email.id_for_label }}">Correo</label>
+      <div class="md:col-span-6">
+        <label for="{{ form.email.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">Correo</label>
         {{ form.email }}
       </div>
 
-      <div class="form-group span-6">
-        <label for="{{ form.maintenance_type.id_for_label }}">Tipo de mantenimiento</label>
+      <div class="md:col-span-6">
+        <label for="{{ form.maintenance_type.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">Tipo de mantenimiento</label>
         {{ form.maintenance_type }}
       </div>
 
-      <div class="form-group span-6">
-        <label for="{{ form.equipment.id_for_label }}">Equipo</label>
+      <div class="md:col-span-6">
+        <label for="{{ form.equipment.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">Equipo</label>
         {{ form.equipment }}
       </div>
 
-      <div class="form-group span-3">
-        <label for="{{ form.entry_time.id_for_label }}">Hora entrada</label>
+      <div class="md:col-span-3">
+        <label for="{{ form.entry_time.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">Hora entrada</label>
         {{ form.entry_time }}
       </div>
 
-      <div class="form-group span-3">
-        <label for="{{ form.exit_time.id_for_label }}">Hora salida</label>
+      <div class="md:col-span-3">
+        <label for="{{ form.exit_time.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">Hora salida</label>
         {{ form.exit_time }}
       </div>
 
-      <div class="form-group span-3">
-        <label for="{{ form.date.id_for_label }}">Fecha</label>
+      <div class="md:col-span-3">
+        <label for="{{ form.date.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">Fecha</label>
         {{ form.date }}
       </div>
 
-      <div class="form-group span-3">
-        <label for="{{ form.technician.id_for_label }}">Técnico</label>
-        {{ form.technician }}
+      <div class="md:col-span-3">
+  <label class="block text-sm font-semibold text-slate-700 mb-2">Técnico</label>
+  <div class="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm text-slate-900 shadow-sm">
+    {{ request.user.get_full_name|default:request.user.username }}
+  </div>
+</div>
+
+      <div class="md:col-span-6">
+        <label for="{{ form.site.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">Sede</label>
+        {{ form.site }}
       </div>
 
-      <div class="form-group span-6">
-        <label for="{{ form.site.id_for_label }}">Sede</label>
-        {{ form.site }}
+      <div class="md:col-span-6">
+  <label for="{{ form.process_status.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">
+    Estado del proceso
+  </label>
+  {{ form.process_status }}
+</div>
+
+    </div>
+  </div>
+
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6">
+    <h3 class="text-xl font-bold text-slate-900">Resumen rápido</h3>
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+      <div class="rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3">
+        <span class="block text-slate-500 font-medium mb-1">Cliente</span>
+        <span class="font-semibold text-slate-900" id="summaryClient">-</span>
+      </div>
+      <div class="rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3">
+        <span class="block text-slate-500 font-medium mb-1">Equipo</span>
+        <span class="font-semibold text-slate-900" id="summaryEquipment">-</span>
+      </div>
+      <div class="rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3">
+        <span class="block text-slate-500 font-medium mb-1">Tipo</span>
+        <span class="font-semibold text-slate-900" id="summaryType">-</span>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <h3>Resumen rápido</h3>
-    <p class="small-muted">Completa el formulario y selecciona los estados técnicos según corresponda.</p>
-  </div>
-
-  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:18px; margin-bottom:18px;">
-    <div class="section-card">
-      <div class="section-title">Tablero de control</div>
-      <div class="table-wrap">
-        <table>
-          <thead>
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden">
+      <div class="bg-blue-600 text-white px-6 py-4 font-bold text-center uppercase tracking-wide">Tablero de control</div>
+      <div class="table-scroll overflow-auto max-h-[650px]">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 sticky top-0">
             <tr>
-              <th>Parámetro</th>
-              <th>B1</th>
-              <th>B2</th>
-              <th>B3</th>
-              <th>B4</th>
+              <th class="px-4 py-3 text-left font-semibold">Parámetro</th>
+              <th class="px-4 py-3 text-left font-semibold">B1</th>
+              <th class="px-4 py-3 text-left font-semibold">B2</th>
+              <th class="px-4 py-3 text-left font-semibold">B3</th>
+              <th class="px-4 py-3 text-left font-semibold">B4</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-slate-200">
             {% for row in tablero_rows %}
-              <tr>
-                <td>{{ row.label }}</td>
+              <tr class="hover:bg-slate-50">
+                <td class="px-4 py-3 font-medium">{{ row.label }}</td>
                 {% for cell in row.cells %}
-                  <td>
+                  <td class="px-3 py-2">
                     {% if row.type == "number" %}
-                      <input class="form-input" type="number" step="any" name="{{ cell.name }}" value="{{ cell.numeric_value }}">
+                      <input class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100" type="number" step="any" name="{{ cell.name }}" value="{{ cell.numeric_value }}">
                     {% else %}
-                      <select class="form-select" name="{{ cell.name }}">
+                      <select class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100" name="{{ cell.name }}">
                         {% for value, label in state_choices %}
                           <option value="{{ value }}" {% if cell.value == value %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
@@ -108,22 +134,22 @@
       </div>
     </div>
 
-    <div class="section-card">
-      <div class="section-title">Hidrosistema</div>
-      <div class="table-wrap">
-        <table>
-          <thead>
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden">
+      <div class="bg-blue-600 text-white px-6 py-4 font-bold text-center uppercase tracking-wide">Hidrosistema</div>
+      <div class="table-scroll overflow-auto max-h-[650px]">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 sticky top-0">
             <tr>
-              <th>Descripción</th>
-              <th>Estado</th>
+              <th class="px-4 py-3 text-left font-semibold">Descripción</th>
+              <th class="px-4 py-3 text-left font-semibold">Estado</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-slate-200">
             {% for row in hidrosistema_rows %}
-              <tr>
-                <td>{{ row.label }}</td>
-                <td>
-                  <select class="form-select" name="{{ row.name }}">
+              <tr class="hover:bg-slate-50">
+                <td class="px-4 py-3 font-medium">{{ row.label }}</td>
+                <td class="px-3 py-2">
+                  <select class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100" name="{{ row.name }}">
                     {% for value, label in state_choices %}
                       <option value="{{ value }}" {% if row.value == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
@@ -137,29 +163,29 @@
     </div>
   </div>
 
-  <div class="section-card">
-    <div class="section-title">Sistema eyector</div>
-    <div class="table-wrap">
-      <table>
-        <thead>
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden">
+    <div class="bg-blue-600 text-white px-6 py-4 font-bold text-center uppercase tracking-wide">Sistema eyector</div>
+    <div class="table-scroll overflow-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50">
           <tr>
-            <th>Parámetro</th>
-            <th>B1</th>
-            <th>B2</th>
-            <th>B3</th>
-            <th>B4</th>
+            <th class="px-4 py-3 text-left font-semibold">Parámetro</th>
+            <th class="px-4 py-3 text-left font-semibold">B1</th>
+            <th class="px-4 py-3 text-left font-semibold">B2</th>
+            <th class="px-4 py-3 text-left font-semibold">B3</th>
+            <th class="px-4 py-3 text-left font-semibold">B4</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-slate-200">
           {% for row in eyector_rows %}
-            <tr>
-              <td>{{ row.label }}</td>
+            <tr class="hover:bg-slate-50">
+              <td class="px-4 py-3 font-medium">{{ row.label }}</td>
               {% for cell in row.cells %}
-                <td>
+                <td class="px-3 py-2">
                   {% if row.type == "number" %}
-                    <input class="form-input" type="number" step="any" name="{{ cell.name }}" value="{{ cell.numeric_value }}">
+                    <input class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100" type="number" step="any" name="{{ cell.name }}" value="{{ cell.numeric_value }}">
                   {% else %}
-                    <select class="form-select" name="{{ cell.name }}">
+                    <select class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100" name="{{ cell.name }}">
                       {% for value, label in state_choices %}
                         <option value="{{ value }}" {% if cell.value == value %}selected{% endif %}>{{ label }}</option>
                       {% endfor %}
@@ -174,27 +200,27 @@
     </div>
   </div>
 
-  <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:18px; margin-bottom:18px;">
-    <div class="section-card">
-      <div class="section-title">Motor</div>
-      <div class="table-wrap">
-        <table>
-          <thead>
+  <div class="grid grid-cols-1 2xl:grid-cols-[1.2fr,1fr] gap-6">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden">
+      <div class="bg-blue-600 text-white px-6 py-4 font-bold text-center uppercase tracking-wide">Motor</div>
+      <div class="table-scroll overflow-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50">
             <tr>
-              <th>Parámetro</th>
-              <th>M1</th>
-              <th>M2</th>
-              <th>M3</th>
-              <th>M4</th>
+              <th class="px-4 py-3 text-left font-semibold">Parámetro</th>
+              <th class="px-4 py-3 text-left font-semibold">M1</th>
+              <th class="px-4 py-3 text-left font-semibold">M2</th>
+              <th class="px-4 py-3 text-left font-semibold">M3</th>
+              <th class="px-4 py-3 text-left font-semibold">M4</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-slate-200">
             {% for row in motor_rows %}
-              <tr>
-                <td>{{ row.label }}</td>
+              <tr class="hover:bg-slate-50">
+                <td class="px-4 py-3 font-medium">{{ row.label }}</td>
                 {% for cell in row.cells %}
-                  <td>
-                    <select class="form-select" name="{{ cell.name }}">
+                  <td class="px-3 py-2">
+                    <select class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100" name="{{ cell.name }}">
                       {% for value, label in state_choices %}
                         <option value="{{ value }}" {% if cell.value == value %}selected{% endif %}>{{ label }}</option>
                       {% endfor %}
@@ -208,26 +234,26 @@
       </div>
     </div>
 
-    <div class="section-card">
-      <div class="section-title">Bombas</div>
-      <div class="table-wrap">
-        <table>
-          <thead>
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden">
+      <div class="bg-blue-600 text-white px-6 py-4 font-bold text-center uppercase tracking-wide">Bombas</div>
+      <div class="table-scroll overflow-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50">
             <tr>
-              <th>Parámetro</th>
-              <th>B1</th>
-              <th>B2</th>
-              <th>B3</th>
-              <th>B4</th>
+              <th class="px-4 py-3 text-left font-semibold">Parámetro</th>
+              <th class="px-4 py-3 text-left font-semibold">B1</th>
+              <th class="px-4 py-3 text-left font-semibold">B2</th>
+              <th class="px-4 py-3 text-left font-semibold">B3</th>
+              <th class="px-4 py-3 text-left font-semibold">B4</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-slate-200">
             {% for row in bombas_rows %}
-              <tr>
-                <td>{{ row.label }}</td>
+              <tr class="hover:bg-slate-50">
+                <td class="px-4 py-3 font-medium">{{ row.label }}</td>
                 {% for cell in row.cells %}
-                  <td>
-                    <select class="form-select" name="{{ cell.name }}">
+                  <td class="px-3 py-2">
+                    <select class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100" name="{{ cell.name }}">
                       {% for value, label in state_choices %}
                         <option value="{{ value }}" {% if cell.value == value %}selected{% endif %}>{{ label }}</option>
                       {% endfor %}
@@ -242,31 +268,49 @@
     </div>
   </div>
 
-  <div class="card">
-    <div class="form-grid">
-      <div class="form-group span-6">
-        <label for="{{ form.parts_for_change.id_for_label }}">Partes para cambio</label>
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6 md:p-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div>
+        <label for="{{ form.parts_for_change.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">Partes para cambio</label>
         {{ form.parts_for_change }}
       </div>
 
-      <div class="form-group span-6">
-        <label for="{{ form.observations.id_for_label }}">Observaciones</label>
+      <div>
+        <label for="{{ form.observations.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-2">Observaciones</label>
         {{ form.observations }}
       </div>
 
-      <div class="form-group span-12">
-        <label for="id_photos">Fotografías del mantenimiento</label>
-        <input class="form-input" type="file" id="id_photos" name="photos" multiple accept="image/*">
+      <div class="lg:col-span-2">
+        <label for="id_photos" class="block text-sm font-semibold text-slate-700 mb-2">Fotografías del mantenimiento</label>
+        <input
+          class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm"
+          type="file"
+          id="id_photos"
+          name="photos"
+          multiple
+          accept="image/*"
+        >
+        <p class="text-xs text-slate-500 mt-2">Puedes seleccionar varias imágenes.</p>
+
+        <div id="photoPreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4"></div>
       </div>
     </div>
 
     {% if record and record.photos.all %}
-      <div style="margin-top:18px;">
-        <h4>Fotos actuales</h4>
-        <div class="photo-grid">
+      <div class="mt-8">
+        <h4 class="text-lg font-bold text-slate-900 mb-4">Fotos actuales</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">
           {% for photo in record.photos.all %}
-            <div>
-              <img src="{{ photo.image.url }}" alt="Foto mantenimiento">
+            <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50">
+              <img src="{{ photo.image.url }}" alt="Foto mantenimiento" class="w-full h-36 object-cover">
+              <div class="p-3">
+                <form method="post" action="{% url 'maintenance_delete_photo' photo.id %}">
+                  {% csrf_token %}
+                  <button class="w-full rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-2 transition" type="submit">
+                    Eliminar foto
+                  </button>
+                </form>
+              </div>
             </div>
           {% endfor %}
         </div>
@@ -274,9 +318,103 @@
     {% endif %}
   </div>
 
-  <div class="actions-row">
-    <button class="btn btn-success" type="submit">Guardar registro</button>
-    <a class="btn btn-secondary" href="{% url 'maintenance_list' %}">Cancelar</a>
+  <div class="flex flex-wrap gap-3">
+    <button class="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3 transition" type="submit">
+      Guardar registro
+    </button>
+    {% if record %}
+      <a class="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 transition" href="{% url 'maintenance_export_detail_pdf' record.pk %}">
+        Exportar PDF
+      </a>
+    {% endif %}
+    <a class="rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-semibold px-6 py-3 transition" href="{% url 'maintenance_list' %}">
+      Cancelar
+    </a>
   </div>
 </form>
+
+<script>
+  (function () {
+    const clientField = document.getElementById("id_client");
+    const equipmentField = document.getElementById("id_equipment");
+    const typeField = document.getElementById("id_maintenance_type");
+
+    const summaryClient = document.getElementById("summaryClient");
+    const summaryEquipment = document.getElementById("summaryEquipment");
+    const summaryType = document.getElementById("summaryType");
+
+    const clientSelect = document.getElementById("id_client");
+    const emailField = document.getElementById("id_email");
+    const siteField = document.getElementById("id_site");
+
+   if (clientSelect) {
+  clientSelect.addEventListener("change", async function () {
+    const clientId = this.value;
+
+    if (!clientId) {
+      if (emailField) emailField.value = "";
+      if (siteField) siteField.value = "";
+      updateSummary();
+      return;
+    }
+
+    try {
+      const response = await fetch(`/clientes/api/client/${clientId}/`);
+      const data = await response.json();
+
+      if (emailField) emailField.value = data.email || "";
+      if (siteField) siteField.value = data.address || data.site || "";
+
+      updateSummary();
+    } catch (error) {
+      console.error("Error cargando cliente:", error);
+    }
+  });
+}
+    function updateSummary() {
+      const clientText = clientField?.options[clientField.selectedIndex]?.text || "-";
+      const typeText = typeField?.options[typeField.selectedIndex]?.text || "-";
+
+      summaryClient.textContent = clientField?.value ? clientText : "-";
+      summaryEquipment.textContent = equipmentField?.value || "-";
+      summaryType.textContent = typeField?.value ? typeText : "-";
+    }
+
+    if (clientField) clientField.addEventListener("change", updateSummary);
+    if (equipmentField) equipmentField.addEventListener("input", updateSummary);
+    if (typeField) typeField.addEventListener("change", updateSummary);
+
+    updateSummary();
+
+    const photoInput = document.getElementById("id_photos");
+    const photoPreview = document.getElementById("photoPreview");
+
+    if (photoInput && photoPreview) {
+      photoInput.addEventListener("change", function () {
+        photoPreview.innerHTML = "";
+
+        const files = Array.from(this.files || []);
+        if (!files.length) return;
+
+        files.forEach(file => {
+          if (!file.type.startsWith("image/")) return;
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const wrapper = document.createElement("div");
+            wrapper.className = "rounded-2xl overflow-hidden border border-slate-200 bg-slate-50";
+
+            wrapper.innerHTML = `
+              <img src="${e.target.result}" class="w-full h-36 object-cover" alt="preview">
+              <div class="px-2 py-2 text-xs text-slate-600 truncate">${file.name}</div>
+            `;
+
+            photoPreview.appendChild(wrapper);
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+    }
+  })();
+</script>
 {% endblock %}

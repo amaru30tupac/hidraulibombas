@@ -1,81 +1,230 @@
 {% extends "base.html" %}
+{% load maintenance_extras %}
 
 {% block content %}
-<div class="card">
-  <h3>Detalle del mantenimiento #{{ record.id }}</h3>
-
-  <div class="form-grid">
-    <div class="span-4"><strong>Cliente:</strong> {{ record.client.name }}</div>
-    <div class="span-4"><strong>Equipo:</strong> {{ record.equipment }}</div>
-    <div class="span-4"><strong>Tipo:</strong> {{ record.get_maintenance_type_display }}</div>
-    <div class="span-4"><strong>Fecha:</strong> {{ record.date }}</div>
-    <div class="span-4"><strong>Técnico:</strong> {{ record.technician|default:"-" }}</div>
-    <div class="span-4"><strong>Estado general:</strong> {{ record.general_status|default:"-" }}</div>
-    <div class="span-4"><strong>Torre:</strong> {{ record.tower|default:"-" }}</div>
-    <div class="span-4"><strong>Número:</strong> {{ record.number|default:"-" }}</div>
-    <div class="span-4"><strong>Sede:</strong> {{ record.site|default:"-" }}</div>
-  </div>
-
-  <div class="actions-row">
-    <a class="btn btn-success" href="{% url 'maintenance_update' record.pk %}">Editar</a>
-    <a class="btn btn-danger" href="{% url 'maintenance_delete' record.pk %}">Eliminar</a>
-    <a class="btn btn-secondary" href="{% url 'maintenance_list' %}">Volver</a>
-  </div>
-</div>
-
-<div class="card">
-  <h3>Observaciones</h3>
-  <p>{{ record.observations|default:"Sin observaciones."|linebreaks }}</p>
-
-  <h3>Partes para cambio</h3>
-  <p>{{ record.parts_for_change|default:"Sin partes registradas."|linebreaks }}</p>
-</div>
-
-<div class="card">
-  <h3>Valores de inspección</h3>
-
-  {% for section, items in grouped_values.items %}
-    <h4>{{ section }}</h4>
-    <div class="table-wrap" style="margin-bottom:18px;">
-      <table>
-        <thead>
-          <tr>
-            <th>Parámetro</th>
-            <th>Posición</th>
-            <th>Valor</th>
-            <th>Valor numérico</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in items %}
-            <tr>
-              <td>{{ item.parameter }}</td>
-              <td>{{ item.position }}</td>
-              <td>{{ item.value|default:"-" }}</td>
-              <td>{{ item.numeric_value|default:"-" }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6 md:p-8 mb-6 print:shadow-none print:border-0">
+  <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+    <div>
+      <h3 class="text-2xl font-bold text-slate-900">Detalle del mantenimiento #{{ record.id }}</h3>
+      <p class="text-sm text-slate-500 mt-1">{{ record.title }}</p>
     </div>
-  {% empty %}
-    <p>No hay valores técnicos registrados.</p>
-  {% endfor %}
+
+    <div class="flex flex-wrap gap-3 print:hidden">
+      {% if not record.is_closed %}
+        <a class="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3 transition" href="{% url 'maintenance_update' record.pk %}">
+          Editar
+        </a>
+      {% endif %}
+      <a class="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-3 transition" href="{% url 'maintenance_export_detail_pdf' record.pk %}">
+        Exportar PDF
+      </a>
+      <button onclick="window.print()" class="rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-semibold px-5 py-3 transition" type="button">
+        Imprimir
+      </button>
+      {% if not record.is_closed %}
+        <a class="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-3 transition" href="{% url 'maintenance_delete' record.pk %}">
+          Eliminar
+        </a>
+      {% endif %}
+      <a class="rounded-xl bg-slate-500 hover:bg-slate-600 text-white font-semibold px-5 py-3 transition" href="{% url 'maintenance_list' %}">
+        Volver
+      </a>
+    </div>
+  </div>
+
+  <div class="mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 text-sm">
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><span class="block text-slate-500 mb-1">Cliente</span><span class="font-semibold">{{ record.client.name }}</span></div>
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><span class="block text-slate-500 mb-1">Equipo</span><span class="font-semibold">{{ record.equipment }}</span></div>
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><span class="block text-slate-500 mb-1">Tipo</span><span class="font-semibold">{{ record.get_maintenance_type_display }}</span></div>
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><span class="block text-slate-500 mb-1">Fecha</span><span class="font-semibold">{{ record.date }}</span></div>
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><span class="block text-slate-500 mb-1">Técnico</span><span class="font-semibold">{{ record.technician|default:"-" }}</span></div>
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><span class="block text-slate-500 mb-1">Estado general</span><span class="font-semibold">{{ record.general_status|default:"-" }}</span></div>
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><span class="block text-slate-500 mb-1">Proceso</span><span class="font-semibold">{{ record.get_process_status_display }}</span></div>
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><span class="block text-slate-500 mb-1">Cerrado</span><span class="font-semibold">{% if record.is_closed %}Sí{% else %}No{% endif %}</span></div>
+  </div>
 </div>
 
-<div class="card">
-  <h3>Fotografías</h3>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6">
+    <h3 class="text-xl font-bold text-slate-900 mb-4">Observaciones</h3>
+    <div class="text-sm text-slate-700 leading-6">
+      {{ record.observations|default:"Sin observaciones."|linebreaks }}
+    </div>
+  </div>
+
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6">
+    <h3 class="text-xl font-bold text-slate-900 mb-4">Partes para cambio</h3>
+    <div class="text-sm text-slate-700 leading-6">
+      {{ record.parts_for_change|default:"Sin partes registradas."|linebreaks }}
+    </div>
+  </div>
+</div>
+
+<div class="bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden mb-6">
+  <div class="px-6 py-5 border-b border-slate-200">
+    <h3 class="text-xl font-bold text-slate-900">Valores de inspección</h3>
+  </div>
+
+  <div class="p-6 space-y-6">
+    {% for section, items in grouped_values.items %}
+      <div>
+        <h4 class="text-lg font-bold text-slate-900 capitalize mb-3">{{ section|cut:"_" }}</h4>
+        <div class="overflow-x-auto rounded-2xl border border-slate-200">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="px-4 py-3 text-left font-semibold">Parámetro</th>
+                <th class="px-4 py-3 text-left font-semibold">Posición</th>
+                <th class="px-4 py-3 text-left font-semibold">Estado</th>
+                <th class="px-4 py-3 text-left font-semibold">Valor numérico</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              {% for item in items %}
+                <tr>
+                  <td class="px-4 py-3">{{ item.parameter }}</td>
+                  <td class="px-4 py-3">{{ item.position }}</td>
+                  <td class="px-4 py-3">{{ state_labels|get_item:item.value|default:item.value|default:"-" }}</td>
+                  <td class="px-4 py-3">{{ item.numeric_value|default:"-" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-slate-500">No hay valores técnicos registrados.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6 mb-6">
+  <h3 class="text-xl font-bold text-slate-900 mb-4">Firmas</h3>
+
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <div class="rounded-2xl border border-slate-200 p-4">
+      <h4 class="font-bold mb-3">Firma técnico</h4>
+      {% if record.technician_signature %}
+        <img src="{{ record.technician_signature.url }}" alt="Firma técnico" class="border rounded-xl bg-white h-32 w-full object-contain">
+        <p class="text-sm text-slate-500 mt-2">Firmado: {{ record.signed_by_technician_at|default:"-" }}</p>
+      {% else %}
+        <p class="text-sm text-slate-500 mb-3">Pendiente de firma.</p>
+        <form method="post" action="{% url 'maintenance_sign_technician' record.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="signature_data" id="technician_signature_data">
+          <canvas id="technicianCanvas" class="border rounded-xl bg-white w-full" height="180"></canvas>
+          <div class="flex gap-3 mt-3">
+            <button type="button" onclick="clearCanvas('technicianCanvas')" class="rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-semibold px-4 py-2 transition">Limpiar</button>
+            <button type="submit" onclick="saveCanvasToInput('technicianCanvas','technician_signature_data')" class="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 transition">Guardar firma</button>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 p-4">
+      <h4 class="font-bold mb-3">Firma cliente / responsable</h4>
+      {% if record.client_signature %}
+        <img src="{{ record.client_signature.url }}" alt="Firma cliente" class="border rounded-xl bg-white h-32 w-full object-contain">
+        <p class="text-sm text-slate-500 mt-2">Firmado: {{ record.signed_by_client_at|default:"-" }}</p>
+      {% else %}
+        <p class="text-sm text-slate-500 mb-3">Pendiente de firma.</p>
+        <form method="post" action="{% url 'maintenance_sign_client' record.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="signature_data" id="client_signature_data">
+          <canvas id="clientCanvas" class="border rounded-xl bg-white w-full" height="180"></canvas>
+          <div class="flex gap-3 mt-3">
+            <button type="button" onclick="clearCanvas('clientCanvas')" class="rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-semibold px-4 py-2 transition">Limpiar</button>
+            <button type="submit" onclick="saveCanvasToInput('clientCanvas','client_signature_data')" class="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 transition">Guardar firma</button>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6">
+  <h3 class="text-xl font-bold text-slate-900 mb-4">Fotografías</h3>
 
   {% if record.photos.all %}
-    <div class="photo-grid">
+    <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">
       {% for photo in record.photos.all %}
-        <div>
-          <img src="{{ photo.image.url }}" alt="Foto mantenimiento">
+        <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50">
+          <img src="{{ photo.image.url }}" alt="Foto mantenimiento" class="w-full h-40 object-cover">
         </div>
       {% endfor %}
     </div>
   {% else %}
-    <p>No hay fotografías adjuntas.</p>
+    <p class="text-slate-500">No hay fotografías adjuntas.</p>
   {% endif %}
 </div>
+
+<script>
+  function setupSignatureCanvas(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    function start(e) {
+      drawing = true;
+      const pos = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+      e.preventDefault();
+    }
+
+    function draw(e) {
+      if (!drawing) return;
+      const pos = getPos(e);
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#111827';
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+      e.preventDefault();
+    }
+
+    function stop(e) {
+      drawing = false;
+      e.preventDefault();
+    }
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stop);
+    canvas.addEventListener('mouseleave', stop);
+
+    canvas.addEventListener('touchstart', start, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stop, { passive: false });
+  }
+
+  function clearCanvas(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function saveCanvasToInput(canvasId, inputId) {
+    const canvas = document.getElementById(canvasId);
+    const input = document.getElementById(inputId);
+    if (!canvas || !input) return;
+    input.value = canvas.toDataURL("image/png");
+  }
+
+  setupSignatureCanvas('technicianCanvas');
+  setupSignatureCanvas('clientCanvas');
+</script>
 {% endblock %}
